@@ -4,6 +4,7 @@ require 'stringio'
 require_relative '../lib/inter_trade/conversion_rates'
 
 describe ConversionRates do
+
   def bd(x)
     BigDecimal.new(x.to_s)
   end
@@ -11,7 +12,7 @@ describe ConversionRates do
   CONVERSIONS = [['AAA', 'BBB', '2'],
                  ['BBB', 'CCC', '3'],
                  ['CCC', 'AAA', '0.3'], # add a cycle in the graph
-                 ['DDD', 'CCC', '0.2'],
+                 ['CCC', 'DDD', '5'],
                  ['DDD', 'EEE', '7']]
 
   subject { ConversionRates.new(CONVERSIONS) }
@@ -21,9 +22,8 @@ describe ConversionRates do
     expect(subject.convert('EEE', 'EEE', bd('99.1'))).to eq(bd('99.1'))
   end
 
-  it 'does bi-directional conversions' do
-    expect(subject.convert('CCC', 'DDD', bd('1.0'))).to eq(bd('5'))
-    expect(subject.convert('DDD', 'CCC', bd('20.0'))).to eq(bd('4'))
+  it 'uses only existing conversions' do
+    expect { subject.convert('EEE', 'DDD', bd('1.0')) }.to raise_error
   end
 
   it 'finds correct conversion path' do

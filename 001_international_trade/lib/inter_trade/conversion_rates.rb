@@ -1,6 +1,10 @@
 require 'bigdecimal'
+require_relative 'banking_round'
 
 class ConversionRates
+
+  include BankingRound
+
   def initialize(raw_conversions)
     @rates = Hash.new { |h, k| h[k] = {} }
 
@@ -24,7 +28,6 @@ class ConversionRates
 
   def add_rate(from, to, rate)
     @rates[from][to] = BigDecimal.new(rate)
-    @rates[to][from] = BigDecimal.new('1.0') / BigDecimal.new(rate)
   end
 
   def find_path(from, to)
@@ -45,17 +48,6 @@ class ConversionRates
     end
 
     NO_PATH
-  end
-
-  def banking_round(num)
-    return num.round(2) unless (num * 100) % 1.0 == 0.5
-
-    last_digit = (num * 100).to_i % 10
-    if last_digit.even?
-      return num.floor(2)
-    end
-
-    num.ceil(2)
   end
 
   def all_currencies
