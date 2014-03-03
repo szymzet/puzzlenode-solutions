@@ -16,6 +16,11 @@ describe ConversionRates do
 
   subject { ConversionRates.new(CONVERSIONS) }
 
+  it 'knows when no conversion needed' do
+    expect(subject.convert('CCC', 'CCC', bd('332.43'))).to eq(bd('332.43'))
+    expect(subject.convert('EEE', 'EEE', bd('99.1'))).to eq(bd('99.1'))
+  end
+
   it 'does bi-directional conversions' do
     expect(subject.convert('CCC', 'DDD', bd('1.0'))).to eq(bd('5'))
     expect(subject.convert('DDD', 'CCC', bd('20.0'))).to eq(bd('4'))
@@ -40,6 +45,12 @@ describe ConversionRates do
 
       expect(convert_down.convert('ABC', 'XYZ', bd('1.0'))).to eq(bd('1.12'))
       expect(convert_up.convert('ABC', 'XYZ', bd('1.0'))).to eq(bd('1.14'))
+    end
+
+    it 'does not round intermediate conversions' do
+      convert = ConversionRates.new([['ABC', 'XYZ', '0.0001'],
+                                     ['XYZ', 'LOL', '10000']])
+      expect(convert.convert('ABC', 'LOL', bd('1.01'))).to eq(bd('1.01'))
     end
   end
 end

@@ -12,9 +12,10 @@ class ConversionRates
   def convert(from_currency, to_currency, amount)
     path = find_path(from_currency, to_currency)
 
-    path.each_cons(2).reduce(amount) do |result, pair|
-      banking_round(result * @rates[pair[0]][pair[1]])
+    unrounded = path.each_cons(2).reduce(BigDecimal.new(amount.to_s)) do |result, pair|
+      result * @rates[pair[0]][pair[1]]
     end
+    banking_round(unrounded)
   end
 
   private
